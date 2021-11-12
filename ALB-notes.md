@@ -53,6 +53,32 @@ Even thouhgh subnet belong to a particular Availability Zone, this address is re
 ### Prefix rewrite
 `ingress.alb.yc.io/prefix-rewrite` — (**optional**) Replacement for the path prefix matched by StringMatch. For instance, if prefixMatch value is /foo and prefix-rewrite value is /bar, a request with /foobaz path is forwarded with /barbaz path.
 
+It works like that.
+1. specify the value for this annotation for example
+```
+ingress.alb.yc.io/prefix-rewrite: /bar
+```
+2. define your spec for actual routes
+```
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: test
+            port:
+              number: 80
+```
+
+3. depending on value of "pathType:" two actions then may occur
+if `pathType: Prefix` then request will be rewrited partially, in example above request to `/testpath123` will be rewrited to `/bar123`
+because annotations specifies` /bar` and `pathType: Prefix`
+
+if `pathType: Exact `then the whole path is replaced, in example above if we change `pathType:` to "`Exact`" then request of user towards `/testpath123` will be  replaced with `/bar`
+
 
 ### Upgrade-types
 `ingress.alb.yc.io/upgrade-types` — (**optional**)  allowed values of HTTP-header 'Upgrade", for example **websocket**.
